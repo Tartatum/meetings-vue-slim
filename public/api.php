@@ -68,6 +68,20 @@ $app->post(
         return $response->withStatus(201)->withJson($requestData)->withHeader('Location', "/participants/$newParticipantId");
     }
 );
+$app->post(
+    '/api/participants/delete',
+    function (Request $request, Response $response, array $args) use ($db) {
+        $requestData = $request->getParsedBody();
+        if (!isset($requestData['id'])) {
+            return $response->withStatus(404)->withJson($requestData);
+        }
+        $sql = "DELETE FROM participant WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue('id', $requestData['id']);
+        $stmt->execute();
+        return $response->withStatus(201)->withJson($requestData)->withHeader('Location', "/participants/$newParticipantId");
+    }
+);
 
 
 $app->run();

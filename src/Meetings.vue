@@ -9,7 +9,7 @@
       <div>
         <div v-if="people.length > 0">
           <h2>The people already signed in:</h2>
-          <participants-list :list="people"></participants-list>
+          <participants-list :list="people" @deletePerson="deleteParticipant($event)"></participants-list>
         </div>
         <em v-else>Sorry, nobody is here :-(</em>
       </div>
@@ -25,9 +25,13 @@
   </div>
 </template>
 
+
 <script>
   import ParticipantsList from "./ParticipantsList.vue";
   import NewParticipantForm from "./NewParticipantForm.vue";
+	
+
+
 
   export default {
     components: {ParticipantsList, NewParticipantForm},
@@ -36,10 +40,36 @@
         people: []
       };
     },
-    methods: {
-      addNewParticipant(participant) {
-        this.people.push(participant);
-      }
+	mounted() 
+	{
+		this.$http.get('participants').then(response => 
+		{
+			this.people = response.body  ; //List of user
+		});
+	},
+    methods:
+	{deleteParticipant(id){
+    let part={};
+    part.id = id;
+    console.log ("Request : participant "+ id + " deleted.");
+    this.$http.post('participants/delete',part).then(()=>{
+    this.people = this.people.filter(part => part.id != id);
+    console.log("participant "+id+ " deleted.")
+    })
+  },
+
+
+      addNewParticipant(participant)
+		{
+			
+			//alert(participant.firstname +" "+ participant.lastname);
+			this.$http.post('participants', participant).then(response =>
+				{
+          this.people.push(response.body);
+				});
+	  	}
     }
-  };
+  }
+  
+  
 </script>
